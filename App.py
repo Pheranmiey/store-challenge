@@ -27,7 +27,7 @@ feature_info = {
 
 st.title("Stock Market Prediction")
 
-st.write("Pleease, enter values below. Hover over the info icon for explanations.")
+st.write("Please, enter values below. Hover over the info icon for explanations.")
 
 features = []
 for feature_name, explanation in feature_info.items():
