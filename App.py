@@ -2,7 +2,37 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# Load the model (cached so it loads only once)
+selected_features = [
+    'EMA_20', 'EMA_200', 'EMA_10', 'EMA_50', 'Year',
+    'DTB3', 'DTB6', 'DE2', 'DGS5', 'Month',
+    'TE1', 'DE1', 'DTB4WK', 'DE4', 'DE6',
+    'ROC_15', 'ROC_10', 'ROC_20', 'DE5', 'DAAA'
+]
+
+feature_info = {
+    'EMA_20': 'Exponential Moving Average over 20 days.',
+    'EMA_200': 'Exponential Moving Average over 200 days.',
+    'EMA_10': 'Exponential Moving Average over 10 days.',
+    'EMA_50': 'Exponential Moving Average over 50 days.',
+    'Year': 'The calendar year of the data point (e.g., 2023).',
+    'DTB3': '3-Month Treasury Bill Rate (percent).',
+    'DTB6': '6-Month Treasury Bill Rate (percent).',
+    'DE2': 'Economic indicator DE2 - specific to dataset domain.',
+    'DGS5': '5-Year Treasury Constant Maturity Rate (percent).',
+    'Month': 'Month of the year as a number (1-12).',
+    'TE1': 'Economic indicator TE1 - specific to dataset domain.',
+    'DE1': 'Economic indicator DE1 - specific to dataset domain.',
+    'DTB4WK': '4-Week Treasury Bill Rate (percent).',
+    'DE4': 'Economic indicator DE4 - specific to dataset domain.',
+    'DE6': 'Economic indicator DE6 - specific to dataset domain.',
+    'ROC_15': 'Rate of Change over 15 days.',
+    'ROC_10': 'Rate of Change over 10 days.',
+    'ROC_20': 'Rate of Change over 20 days.',
+    'DE5': 'Economic indicator DE5 - specific to dataset domain.',
+    'DAAA': 'Economic indicator DAAA - specific to dataset domain.'
+}
+
+# Cache the model loading to improve performance
 @st.cache_resource
 def load_model():
     with open('catboost_model.pkl', 'rb') as f:
@@ -11,34 +41,20 @@ def load_model():
 
 model = load_model()
 
-# Define your features and their explanations
-feature_info = {
-    'Year': 'The calendar year of the data point (e.g., 2023).',
-    'DE1': 'Economic indicator DE1 - specific to dataset domain.',
-    'DE2': 'Economic indicator DE2 - specific to dataset domain.',
-    'DGS5': '5-Year Treasury Constant Maturity Rate (percent).',
-    'DTB6': '6-Month Treasury Bill Rate (percent).',
-    'DTB4WK': '4-Week Treasury Bill Rate (percent).',
-    'Month': 'Month of the year as a number (1-12).',
-    'DE5': 'Economic indicator DE5 - specific to dataset domain.',
-    'DE4': 'Economic indicator DE4 - specific to dataset domain.',
-    'DGS10': '10-Year Treasury Constant Maturity Rate (percent).'
-}
-
 st.title("Stock Market Prediction")
+st.write("Enter values below. Select the question icon for explanations.")
 
-st.write("Enter values below (Tap on the info icon for description).")
-
-features = []
-for feature_name, explanation in feature_info.items():
+input_values = []
+for feature in selected_features:
+    explanation = feature_info.get(feature, "No explanation available.")
     val = st.number_input(
-        label=f"{feature_name} ℹ️",  # Add info icon to label
+        label=f"{feature}",
         value=0.0,
-        help=explanation  # Tooltip shown on hover
+        help=explanation
     )
-    features.append(val)
+    input_values.append(val)
 
-input_array = np.array(features).reshape(1, -1)
+input_array = np.array(input_values).reshape(1, -1)
 
 if st.button("Predict"):
     prediction = model.predict(input_array)
